@@ -1,0 +1,14 @@
+/**/local.json
+/**/node_modules/
+/**/own_modules/
+/**/package-lock.json
+/**/tmp/
+/**/ttttest.*
+/.idea/
+/cfg/local.*
+/composer.lock
+/package-lock.json
+/tmp/
+/var/*.pid
+/var/store/**
+/web/download/

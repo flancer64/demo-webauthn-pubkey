@@ -1,0 +1,31 @@
+{
+  "package": {
+    "app": {
+      "entity": {
+        "user": {
+          "comment": "User registry for the app.",
+          "attr": {
+            "bid": {"type": "id", "comment": "Internal ID used in foreign keys."},
+            "date_created": {
+              "comment": "Date-time for user registration.",
+              "type": "datetime",
+              "default": "current"
+            },
+            "date_updated": {
+              "type": "datetime",
+              "comment": "Date-time for the last update.",
+              "default": "current"
+            },
+            "email": {
+              "comment": "Every user has one email to restore access to own account.",
+              "type": "string"
+            }
+          },
+          "index": {
+            "email": {"type": "unique", "attrs": ["email"]}
+          }
+        }
+      }
+    }
+  }
+}

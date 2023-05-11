@@ -1,0 +1,6 @@
+/*@import "./css/vars.css";*/
+
+HTML, BODY {
+    box-sizing: border-box;
+    margin: 0;
+}

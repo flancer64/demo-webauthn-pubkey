@@ -1,0 +1,13 @@
+{
+  "@teqfw/di": {
+    "autoload": {
+      "ns": "Demo",
+      "path": "./src"
+    }
+  },
+  "@teqfw/web-api": {
+    "services": [
+      "Demo_Back_Web_Api_Sign_Up"
+    ]
+  }
+}

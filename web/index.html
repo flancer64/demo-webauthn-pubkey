@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description"
+          content="A demo application that utilizes the WebAuthn API to implement secure user authentication using public key cryptography.">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+    <title>WebAuthn: PubKey</title>
+    <style>
+        #app {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            left: 0;
+            position: relative;
+            top: 0;
+            width: 100%;
+        }
+
+        #launcher {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: center;
+            left: 0;
+            position: relative;
+            top: 0;
+            width: 100vw;
+        }
+    </style>
+    <script type="module">
+        self.addEventListener('load', async () => {
+            // VARS
+            const urlSw = null;
+            const nsApp = 'Demo_Front_App';
+            const cssApp = '#app';
+            const elLog = document.getElementById('printLog');
+            const elProgress = document.getElementById('printProgress');
+
+            // FUNCS
+            function fnLog(msg) {
+                elLog.innerHTML = msg;
+                console.log(`[shell]: ${msg}`);
+            }
+
+            function fnProgress(percent) {
+                elProgress.innerHTML = percent;
+                console.log(`[shell]: ${percent}%`);
+            }
+
+            // MAIN
+            try {
+                // see `node_modules/@teqfw/web/web/js/install.mjs`
+                const {bootstrap} = await import('./web/@teqfw/web/js/bootstrap.mjs');
+                bootstrap(fnLog, fnProgress, urlSw, nsApp, cssApp).catch((e) => {
+                    fnLog(e?.message);
+                });
+            } catch (e) {
+                if (e?.message.includes('Failed to fetch dynamically imported module'))
+                    fnLog(`Server is down. Please, try reload the app later.`);
+                else
+                    fnLog(e?.message);
+            }
+        });
+    </script>
+</head>
+<body>
+<!-- application mounting point -->
+<div id="app"></div>
+<!-- contains blocks to output logs and to trace installation progress (is removed after startup) -->
+<div id="launcher">
+    <div id="printLog"></div>
+    <div>
+        <img src="./img/loading.png" alt="loading..."/>
+    </div>
+    <div id="printProgress"></div>
+</div>
+
+<!-- These resources are loaded after landing page is displayed -->
+<link rel="stylesheet" href="./web/@teqfw/ui-quasar/styles.css">
+<link rel="stylesheet" href="./src/quasar/quasar.prod.css">
+<link rel="stylesheet" href="./styles.css">
+<script type="application/javascript" src="./src/vue/vue.global.prod.js"></script>
+<script type="application/javascript" src="./src/vue-router/vue-router.global.prod.js"></script>
+<script type="application/javascript" src="./src/quasar/quasar.umd.prod.js"></script>
+<script type="application/javascript" src="./src/quasar/icon-set/svg-material-icons.umd.prod.js"></script>
+</body>
+</html>

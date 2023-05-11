@@ -1,0 +1,13 @@
+{
+  "deprecated": {},
+  "ref": {
+    "@flancer32/teq-ant-auth": {
+      "/user": {
+        "path": "/app/user",
+        "attrs": {
+          "bid": "bid"
+        }
+      }
+    }
+  }
+}

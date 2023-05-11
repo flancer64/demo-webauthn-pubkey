@@ -1,0 +1,37 @@
+{
+  "name": "@flancer64/demo-webauthn-pubkey",
+  "version": "0.1.0",
+  "description": "WebAuthn API with PubKey Demo.",
+  "homepage": "https://github.com/flancer64/demo-webauthn-pubkey/",
+  "bugs": {
+    "url": "https://github.com/flancer64/demo-webauthn-pubkey/issues",
+    "email": "alex@flancer32.com"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Alex Gusev",
+    "email": "alex@flancer64.com",
+    "url": "https://github.com/flancer64"
+  },
+  "repository": "github:flancer64/demo-webauthn-pubkey",
+  "scripts": {
+    "db-reset": "node ./bin/tequila.mjs db-init",
+    "help": "node ./bin/tequila.mjs -h",
+    "start": "node ./bin/tequila.mjs web-server-start -1",
+    "stop": "node ./bin/tequila.mjs web-server-stop"
+  },
+  "dependencies": {
+    "@flancer32/teq-ant-auth": "github:flancer32/teq-ant-auth",
+    "@teqfw/db": "latest",
+    "@teqfw/test": "latest",
+    "@teqfw/ui-quasar": "latest",
+    "@teqfw/web-api": "latest",
+    "pg": "latest"
+  },
+  "devDependencies": {
+    "mocha": "latest"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
