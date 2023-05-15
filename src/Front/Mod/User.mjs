@@ -15,6 +15,8 @@ export default class Demo_Front_Mod_User {
         const modWebAuthn = spec['Fl32_Auth_Front_Mod_PubKey$'];
         /** @type {Fl32_Auth_Front_Mod_Password} */
         const modPass = spec['Fl32_Auth_Front_Mod_Password$'];
+        /** @type {Fl32_Auth_Front_Mod_Session} */
+        const modSess = spec['Fl32_Auth_Front_Mod_Session$'];
 
         // MAIN
         logger.setNamespace(this.constructor.name);
@@ -34,13 +36,18 @@ export default class Demo_Front_Mod_User {
                 req.email = email;
                 if (password) {
                     req.useWebAuthn = false;
-                    req.passwordSalt = modPass.salt(16);
-                    req.passwordHash = await modPass.hash(password, req.passwordSalt);
+                    req.passwordSalt = modPass.saltNew(16);
+                    req.passwordHash = await modPass.hashCompose(password, req.passwordSalt);
+                    logger.info(`New user with pwd auth. (salt: ${req.passwordSalt}; hash: ${req.passwordHash}).`);
                 } else {
                     req.useWebAuthn = await modWebAuthn.isPublicKeyAvailable();
                 }
                 // noinspection JSValidateTypes
-                return await connApi.send(req, apiSignUp);
+                /** @type {Demo_Shared_Web_Api_Sign_Up.Response} */
+                const res = await connApi.send(req, apiSignUp);
+                // initialize session store if response contains session data (password authentication)
+                if (res?.sessionData) modSess.setData(res?.sessionData);
+                return res;
             } catch (e) {
                 // timeout or error
                 logger.error(`Cannot register attestation for a new user on the backend. Error: ${e?.message}`);

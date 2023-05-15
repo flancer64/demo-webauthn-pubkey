@@ -38,7 +38,8 @@ export default function (spec) {
     <q-card>
         <ui-spinner :loading="ifLoading"/>
         <q-card-section>
-            <q-form class="column">
+            <div class="text-center">Sign Up</div>
+            <q-form class="column q-gutter-sm">
                 <q-input v-model="fldEmail"
                          autocomplete="email"
                          label="Your email"
@@ -71,7 +72,7 @@ export default function (spec) {
             />
         </q-card-actions>
         <q-card-section>
-            <div>{{message}}</div>
+            <div class="text-center">{{message}}</div>
         </q-card-section>
     </q-card>
 </layout>
@@ -111,6 +112,7 @@ export default function (spec) {
         methods: {
             async onOk() {
                 this.ifLoading = true;
+                // request the back for attestation challenge
                 const res = await modSignUp.register(this.fldEmail, this.fldPassword);
                 this.ifLoading = false;
                 if (res?.uuid) {
@@ -124,6 +126,7 @@ export default function (spec) {
                                 userName: `${this.fldEmail}`,
                                 userUuid: res.uuid,
                             });
+                            debugger
                             // noinspection JSValidateTypes
                             /** @type {PublicKeyCredential} */
                             const attestation = await navigator.credentials.create({publicKey});
@@ -142,6 +145,14 @@ export default function (spec) {
                         } else {
                             this.message = 'Cannot receive attestation challenge from the back.';
                         }
+                    else {
+                        // password authentication succeed, redirect to home
+                        setTimeout(() => {
+                            const query = this.$route?.query;
+                            const to = query[DEF.PARAM_ROUTE_REDIRECT] ?? DEF.ROUTE_HOME;
+                            this.$router.push(to);
+                        }, 2000);
+                    }
                 } else {
                     this.message = 'New user is not registered.';
                 }

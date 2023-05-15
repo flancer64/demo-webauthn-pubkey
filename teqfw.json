@@ -3,6 +3,9 @@
     "autoload": {
       "ns": "Demo",
       "path": "./src"
+    },
+    "replace": {
+      "Fl32_Auth_Back_Api_Mole": {"back": "Demo_Back_Mole_Auth_User"}
     }
   },
   "@teqfw/web-api": {

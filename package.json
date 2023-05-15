@@ -26,6 +26,7 @@
     "@teqfw/test": "latest",
     "@teqfw/ui-quasar": "latest",
     "@teqfw/web-api": "latest",
+    "mysql2": "latest",
     "pg": "latest"
   },
   "devDependencies": {

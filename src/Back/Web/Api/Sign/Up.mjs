@@ -1,9 +1,6 @@
 /**
  * Register new user in RDb and generate attest challenge (if requested).
  */
-// MODULE'S IMPORTS
-import {Buffer} from 'node:buffer';
-
 // MODULE'S CLASSES
 /**
  * @implements TeqFw_Web_Api_Back_Api_Service
@@ -21,12 +18,14 @@ export default class Demo_Back_Web_Api_Sign_Up {
         const conn = spec['TeqFw_Db_Back_RDb_IConnect$'];
         /** @type {TeqFw_Db_Back_Api_RDb_CrudEngine} */
         const crud = spec['TeqFw_Db_Back_Api_RDb_CrudEngine$'];
-        /** @type {Fl32_Auth_Back_RDb_Schema_Password} */
-        const rdbPass = spec['Fl32_Auth_Back_RDb_Schema_Password$'];
         /** @type {Demo_Back_RDb_Schema_User} */
         const rdbUser = spec['Demo_Back_RDb_Schema_User$'];
+        /** @type {Fl32_Auth_Back_Act_Password_Create.act|function} */
+        const actPassCreate = spec['Fl32_Auth_Back_Act_Password_Create$'];
         /** @type {Fl32_Auth_Back_Act_Attest_Challenge.act|function} */
         const actChallenge = spec['Fl32_Auth_Back_Act_Attest_Challenge$'];
+        /** @type {Fl32_Auth_Back_Mod_Session} */
+        const modSess = spec['Fl32_Auth_Back_Mod_Session$'];
 
         // VARS
         logger.setNamespace(this.constructor.name);
@@ -39,27 +38,25 @@ export default class Demo_Back_Web_Api_Sign_Up {
         this.init = async function () { };
 
         /**
-         * @param {Demo_Shared_Web_Api_Sign_Up.Request|Object} req
-         * @param {Demo_Shared_Web_Api_Sign_Up.Response|Object} res
+         * @param {Demo_Shared_Web_Api_Sign_Up.Request} req
+         * @param {Demo_Shared_Web_Api_Sign_Up.Response} res
          * @param {TeqFw_Web_Api_Back_Api_Service_Context} context
          * @returns {Promise<void>}
          */
         this.process = async function (req, res, context) {
             // FUNCS
 
+            /**
+             * Create new user record in RDb.
+             * @param {TeqFw_Db_Back_RDb_ITrans} trx
+             * @param {string} email
+             * @returns {Promise<*>}
+             */
             async function addUser(trx, email) {
                 const dto = rdbUser.createDto();
                 dto.email = email;
                 const {[A_USER.BID]: bid} = await crud.create(trx, rdbUser, dto);
                 return bid;
-            }
-
-            async function addPassword(trx, userBid, hash, salt) {
-                const dto = rdbPass.createDto();
-                dto.user_ref = userBid;
-                dto.hash = Buffer.from(hash);
-                dto.salt = Buffer.from(salt);
-                await crud.create(trx, rdbPass, dto);
             }
 
             // MAIN
@@ -78,9 +75,21 @@ export default class Demo_Back_Web_Api_Sign_Up {
                     res.challenge = challenge;
                 } else {
                     // save password hash & salt (there is no public key authenticator in a browser)
-                    await addPassword(trx, userBid, hash, salt);
+                    await actPassCreate({trx, userBid, hash, salt});
+                }
+                // establish new session
+                const {sessionData} = await modSess.establish({
+                    trx,
+                    userBid,
+                    request: context.request,
+                    response: context.response
+                });
+                if (sessionData) {
+                    res.sessionData = sessionData;
                 }
                 await trx.commit();
+                // this is simple sample, so we use email as name & uuid
+                res.name = email;
                 res.uuid = email;
                 logger.info(`${this.constructor.name}: ${JSON.stringify(res)}'.`);
             } catch (error) {

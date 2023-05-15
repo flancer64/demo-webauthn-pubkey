@@ -41,6 +41,16 @@ class Response {
      */
     challenge;
     /**
+     * Use user email as user name.
+     * @type {string}
+     */
+    name;
+    /**
+     * App-specific data for the newly established session.
+     * @type {Object}
+     */
+    sessionData;
+    /**
      * Use user email as UUID.
      * @type {string}
      */
@@ -84,6 +94,8 @@ export default class Demo_Shared_Web_Api_Sign_Up {
             const res = new Response();
             // cast known attributes
             res.challenge = castString(data?.challenge);
+            res.name = castString(data?.name);
+            res.sessionData = structuredClone(data?.sessionData);
             res.uuid = castString(data?.uuid);
             return res;
         };

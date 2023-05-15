@@ -29,8 +29,8 @@ export default class Demo_Front_App {
         const quasar = spec['TeqFw_Ui_Quasar_Front_Lib'];
         /** @type {TeqFw_Web_Front_Mod_Config} */
         const modCfg = spec['TeqFw_Web_Front_Mod_Config$'];
-        /** @type {Demo_Front_Mod_User_Session} */
-        // const modSess = spec['Demo_Front_Mod_User_Session$'];
+        /** @type {Fl32_Auth_Front_Mod_Session} */
+        const modSess = spec['Fl32_Auth_Front_Mod_Session$'];
         /** @type {Demo_Front_Ui_Layout_Main.vueCompTmpl} */
         const Main = spec['Demo_Front_Ui_Layout_Main$'];
         /** @type {Demo_Front_Ui_Layout_Navigator.vueCompTmpl} */
@@ -78,12 +78,12 @@ export default class Demo_Front_App {
                 });
                 router.addRoute({
                     path: DEF.ROUTE_USER_SIGN_IN,
-                    component: () => container.get('Demo_Front_Ui_Route_User_Sign_In$'),
+                    component: () => container.get('Demo_Front_Ui_Route_Sign_In$'),
                     meta: {anonymous: true},
                 });
                 router.addRoute({
                     path: DEF.ROUTE_USER_SIGN_OUT,
-                    component: () => container.get('Demo_Front_Ui_Route_User_Sign_Out$'),
+                    component: () => container.get('Demo_Front_Ui_Route_Sign_Out$'),
                     meta: {anonymous: true},
                 });
                 router.addRoute({
@@ -95,14 +95,14 @@ export default class Demo_Front_App {
                 router.beforeEach((to) => {
                     // instead of having to check every route record with
                     // to.matched.some(record => record.meta.requiresAuth)
-                    // if (!to.meta.anonymous && !modSess.isValid()) {
-                    //     // this route requires auth
-                    //     return {
-                    //         path: DEF.ROUTE_USER_SIGN_IN,
-                    //         // save the location we were at to come back later
-                    //         query: {[DEF.AUTH_REDIRECT]: to.fullPath},
-                    //     };
-                    // }
+                    if (!to?.meta?.anonymous && !modSess.isValid()) {
+                        // this route requires auth
+                        return {
+                            path: DEF.ROUTE_USER_SIGN_IN,
+                            // save the location we were at to come back later
+                            query: {[DEF.PARAM_ROUTE_REDIRECT]: to.fullPath},
+                        };
+                    }
                 });
                 //
                 app.use(router);
@@ -135,7 +135,7 @@ export default class Demo_Front_App {
             await modCfg.init({}); // this app has no separate 'doors' (entry points)
             _print(`Application config is loaded.`);
             try {
-                // await modSess.init();
+                await modSess.init();
                 _print(`User session is initialized.`);
                 initQuasarUi(_root, quasar);
                 _print(`Quasar UI is initialized.`);
