@@ -9,6 +9,8 @@ export default class Demo_Front_Defaults {
     ROUTE_USER_SIGN_OUT = '/user/sign/out';
     ROUTE_USER_SIGN_UP = '/user/sign/up';
 
+    RP_NAME = 'WebAuthn Demo';
+
     /** @type {Demo_Shared_Defaults} */
     SHARED;
 

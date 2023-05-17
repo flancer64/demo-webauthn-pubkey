@@ -12,7 +12,7 @@ export default class Demo_Front_Mod_User {
         /** @type {Demo_Shared_Web_Api_Sign_Up} */
         const apiSignUp = spec['Demo_Shared_Web_Api_Sign_Up$'];
         /** @type {Fl32_Auth_Front_Mod_PubKey} */
-        const modWebAuthn = spec['Fl32_Auth_Front_Mod_PubKey$'];
+        const modPubKey = spec['Fl32_Auth_Front_Mod_PubKey$'];
         /** @type {Fl32_Auth_Front_Mod_Password} */
         const modPass = spec['Fl32_Auth_Front_Mod_Password$'];
         /** @type {Fl32_Auth_Front_Mod_Session} */
@@ -35,12 +35,12 @@ export default class Demo_Front_Mod_User {
                 const req = apiSignUp.createReq();
                 req.email = email;
                 if (password) {
-                    req.useWebAuthn = false;
+                    req.usePubKey = false;
                     req.passwordSalt = modPass.saltNew(16);
                     req.passwordHash = await modPass.hashCompose(password, req.passwordSalt);
                     logger.info(`New user with pwd auth. (salt: ${req.passwordSalt}; hash: ${req.passwordHash}).`);
                 } else {
-                    req.useWebAuthn = await modWebAuthn.isPublicKeyAvailable();
+                    req.usePubKey = await modPubKey.isPublicKeyAvailable();
                 }
                 // noinspection JSValidateTypes
                 /** @type {Demo_Shared_Web_Api_Sign_Up.Response} */

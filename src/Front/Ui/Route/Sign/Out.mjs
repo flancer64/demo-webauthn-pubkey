@@ -64,7 +64,7 @@ export default function (spec) {
             if (res.success) {
                 this.message = 'The session is closed.';
                 setTimeout(() => {
-                    this.$router.push(DEF.ROUTE_USER_SIGN_UP);
+                    this.$router.push(DEF.ROUTE_USER_SIGN_IN);
                 }, 3000);
             } else {
                 this.message = 'Some error is occurred.';

@@ -5,6 +5,7 @@
  */
 // MODULE'S VARS
 const NS = 'Demo_Front_Ui_Route_Sign_Up';
+const TIMEOUT_REDIRECT = 1500;
 
 // MODULE'S FUNCTIONS
 
@@ -21,15 +22,9 @@ export default function (spec) {
     /** @type {TeqFw_Ui_Quasar_Front_Lib_Spinner.vueCompTmpl} */
     const uiSpinner = spec['TeqFw_Ui_Quasar_Front_Lib_Spinner$'];
     /** @type {Demo_Front_Mod_User} */
-    const modSignUp = spec['Demo_Front_Mod_User$'];
-    /** @type {Fl32_Auth_Front_Mod_Store_Attestation.Store} */
-    const modStore = spec['Fl32_Auth_Front_Mod_Store_Attestation.Store$'];
+    const modUser = spec['Demo_Front_Mod_User$'];
     /** @type {Fl32_Auth_Front_Mod_PubKey} */
-    const modAuthn = spec['Fl32_Auth_Front_Mod_PubKey$'];
-    /** @type {typeof Fl32_Auth_Front_Mod_Store_Attestation.Dto} */
-    const DtoAtt = spec['Fl32_Auth_Front_Mod_Store_Attestation.Dto'];
-    /** @type {Fl32_Auth_Front_Mod_PubKey} */
-    const modWebAuthn = spec['Fl32_Auth_Front_Mod_PubKey$'];
+    const modPubKey = spec['Fl32_Auth_Front_Mod_PubKey$'];
 
     // VARS
     logger.setNamespace(NS);
@@ -111,34 +106,39 @@ export default function (spec) {
         },
         methods: {
             async onOk() {
+                // FUNCS
+                const redirect = () => {
+                    const query = this.$route?.query;
+                    const to = query[DEF.PARAM_ROUTE_REDIRECT] ?? DEF.ROUTE_HOME;
+                    this.$router.push(to);
+                };
+
+                // MAIN
                 this.ifLoading = true;
                 // request the back for attestation challenge
-                const res = await modSignUp.register(this.fldEmail, this.fldPassword);
+                const res = await modUser.register(this.fldEmail, this.fldPassword);
                 this.ifLoading = false;
                 if (res?.uuid) {
                     this.message = 'New user is registered.';
                     if (this.fldUsePubKey)
                         if (res?.challenge) {
                             // attest current device and register publicKey on the back
-                            const publicKey = modWebAuthn.composeOptPkCreate({
+                            const publicKey = modPubKey.composeOptPkCreate({
                                 challenge: res.challenge,
-                                rpName: 'Svelters PWA',
+                                rpName: DEF.RP_NAME,
                                 userName: `${this.fldEmail}`,
                                 userUuid: res.uuid,
                             });
-                            debugger
                             // noinspection JSValidateTypes
                             /** @type {PublicKeyCredential} */
                             const attestation = await navigator.credentials.create({publicKey});
                             this.ifLoading = true;
                             /** @type {Fl32_Auth_Shared_Web_Api_Attest.Response} */
-                            const resAttest = await modAuthn.attest(attestation);
+                            const resAttest = await modPubKey.attest({attestation});
                             this.ifLoading = false;
                             if (resAttest?.attestationId) {
-                                const dto = new DtoAtt();
-                                dto.attestationId = resAttest.attestationId;
-                                modStore.write(dto);
                                 this.message = 'This device is attested for this user.';
+                                setTimeout(redirect, TIMEOUT_REDIRECT);
                             } else {
                                 this.message = 'This device is not attested for this user. Some error is occurred.';
                             }
@@ -147,11 +147,7 @@ export default function (spec) {
                         }
                     else {
                         // password authentication succeed, redirect to home
-                        setTimeout(() => {
-                            const query = this.$route?.query;
-                            const to = query[DEF.PARAM_ROUTE_REDIRECT] ?? DEF.ROUTE_HOME;
-                            this.$router.push(to);
-                        }, 2000);
+                        setTimeout(redirect, TIMEOUT_REDIRECT);
                     }
                 } else {
                     this.message = 'New user is not registered.';
@@ -160,7 +156,7 @@ export default function (spec) {
         },
         mounted() {
             // use public key authentication if available
-            modWebAuthn.isPublicKeyAvailable()
+            modPubKey.isPublicKeyAvailable()
                 .then((available) => {
                     this.ifPubKeyAvailable = available;
                     this.fldUsePubKey = available;

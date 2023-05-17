@@ -27,7 +27,7 @@ class Request {
      * 'true' if the front end supports the WebAuthn API, and we should attest the user.
      * @type {boolean}
      */
-    useWebAuthn;
+    usePubKey;
 }
 
 /**
@@ -81,7 +81,7 @@ export default class Demo_Shared_Web_Api_Sign_Up {
             res.email = castString(data?.email);
             res.passwordHash = castString(data?.passwordHash);
             res.passwordSalt = castString(data?.passwordSalt);
-            res.useWebAuthn = castBoolean(data?.useWebAuthn);
+            res.usePubKey = castBoolean(data?.usePubKey);
             return res;
         };
 

@@ -20,12 +20,12 @@ export default class Demo_Back_Web_Api_Sign_Up {
         const crud = spec['TeqFw_Db_Back_Api_RDb_CrudEngine$'];
         /** @type {Demo_Back_RDb_Schema_User} */
         const rdbUser = spec['Demo_Back_RDb_Schema_User$'];
-        /** @type {Fl32_Auth_Back_Act_Password_Create.act|function} */
-        const actPassCreate = spec['Fl32_Auth_Back_Act_Password_Create$'];
-        /** @type {Fl32_Auth_Back_Act_Attest_Challenge.act|function} */
-        const actChallenge = spec['Fl32_Auth_Back_Act_Attest_Challenge$'];
         /** @type {Fl32_Auth_Back_Mod_Session} */
         const modSess = spec['Fl32_Auth_Back_Mod_Session$'];
+        /** @type {Fl32_Auth_Back_Mod_Password} */
+        const modPass = spec['Fl32_Auth_Back_Mod_Password$'];
+        /** @type {Fl32_Auth_Back_Mod_PubKey} */
+        const modPubKey = spec['Fl32_Auth_Back_Mod_PubKey$'];
 
         // VARS
         logger.setNamespace(this.constructor.name);
@@ -66,32 +66,32 @@ export default class Demo_Back_Web_Api_Sign_Up {
                 const email = req.email.trim().toLowerCase();
                 const hash = hexToBin(req.passwordHash);
                 const salt = hexToBin(req.passwordSalt);
-                const useWebAuthn = req.useWebAuthn;
+                const usePubKey = req.usePubKey;
                 // register user to RDb
                 const userBid = await addUser(trx, email);
-                if (useWebAuthn) {
+                if (usePubKey) {
                     // generate attestation challenge for newly registered user
-                    const {challenge} = await actChallenge({trx, userBid});
+                    const {challenge} = await modPubKey.attestChallengeCreate({trx, userBid});
                     res.challenge = challenge;
                 } else {
-                    // save password hash & salt (there is no public key authenticator in a browser)
-                    await actPassCreate({trx, userBid, hash, salt});
-                }
-                // establish new session
-                const {sessionData} = await modSess.establish({
-                    trx,
-                    userBid,
-                    request: context.request,
-                    response: context.response
-                });
-                if (sessionData) {
-                    res.sessionData = sessionData;
+                    // there is no public key authenticator in a browser, just save password hash & salt
+                    await modPass.create({trx, userBid, hash, salt});
+                    // establish new session
+                    const {sessionData} = await modSess.establish({
+                        trx,
+                        userBid,
+                        request: context.request,
+                        response: context.response
+                    });
+                    if (sessionData) {
+                        res.sessionData = sessionData;
+                    }
                 }
                 await trx.commit();
                 // this is simple sample, so we use email as name & uuid
                 res.name = email;
                 res.uuid = email;
-                logger.info(`${this.constructor.name}: ${JSON.stringify(res)}'.`);
+                logger.info(JSON.stringify(res));
             } catch (error) {
                 logger.error(error);
                 await trx.rollback();

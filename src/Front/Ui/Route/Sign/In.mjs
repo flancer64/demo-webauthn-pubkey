@@ -5,6 +5,7 @@
  */
 // MODULE'S VARS
 const NS = 'Demo_Front_Ui_Route_Sign_In';
+const TIMEOUT_REDIRECT = 1500;
 
 // MODULE'S FUNCTIONS
 
@@ -20,10 +21,8 @@ export default function (spec) {
     const logger = spec['TeqFw_Core_Shared_Api_Logger$$']; // instance
     /** @type {TeqFw_Ui_Quasar_Front_Lib_Spinner.vueCompTmpl} */
     const uiSpinner = spec['TeqFw_Ui_Quasar_Front_Lib_Spinner$'];
-    /** @type {Fl32_Auth_Front_Mod_Store_Attestation.Store} */
-    const modStore = spec['Fl32_Auth_Front_Mod_Store_Attestation.Store$'];
     /** @type {Fl32_Auth_Front_Mod_PubKey} */
-    const modWebAuthn = spec['Fl32_Auth_Front_Mod_PubKey$'];
+    const modPubKey = spec['Fl32_Auth_Front_Mod_PubKey$'];
     /** @type {Fl32_Auth_Front_Mod_Password} */
     const modPass = spec['Fl32_Auth_Front_Mod_Password$'];
 
@@ -111,25 +110,25 @@ export default function (spec) {
                 // FUNCS
                 const authPubKey = async () => {
                     this.ifLoading = true;
-                    // define authentication mode: password or publicKey
-                    /** @type {Fl32_Auth_Front_Mod_Store_Attestation.Dto} */
-                    const dto = modStore.read();
-                    const resCh = await modAuthKey.assertChallenge(dto.attestationId);
+                    const resCh = await modPubKey.assertChallenge();
                     if (resCh?.challenge) {
-                        const publicKey = modAuthKey.composeOptPkGet({
+                        const publicKey = modPubKey.composeOptPkGet({
                             challenge: resCh.challenge,
                             attestationId: resCh.attestationId
                         });
-                        const credGet = await navigator.credentials.get({publicKey});
-                        const resV = await modSignIn.validatePubKey(credGet.response);
+                        // noinspection JSValidateTypes
+                        /** @type {PublicKeyCredential} */
+                        const assertion = await navigator.credentials.get({publicKey});
+                        // noinspection JSCheckFunctionSignatures
+                        const resV = await modPubKey.validate(assertion.response);
                         if (resV?.success) {
-                            this.message = this.$t('route.user.sign.in.msg.success');
-                            modSess.setData(resV.user);
+                            this.message = 'Authentication is succeed.';
+                            setTimeout(redirect, TIMEOUT_REDIRECT);
                         } else {
-                            this.message = this.$t('route.user.sign.in.msg.fail');
+                            this.message = 'Authentication is failed.';
                         }
                     } else {
-                        this.message = this.$t('route.user.sign.in.msg.failChallenge');
+                        this.message = 'Cannot get authentication challenge from the back.';
                     }
                     this.ifLoading = false;
                 };
@@ -140,7 +139,7 @@ export default function (spec) {
                     const res = await modPass.passwordValidate(email, pass);
                     if (res?.success) {
                         this.message = 'Authentication is succeed.';
-                        setTimeout(redirect, 2000);
+                        setTimeout(redirect, TIMEOUT_REDIRECT);
                     } else {
                         this.message = 'Authentication is failed.';
                     }
@@ -160,7 +159,7 @@ export default function (spec) {
         },
         mounted() {
             // use public key authentication if available
-            modWebAuthn.isPublicKeyAvailable()
+            modPubKey.isPublicKeyAvailable()
                 .then((available) => {
                     this.ifPubKeyAvailable = available;
                     this.fldUsePubKey = available;
