@@ -1,0 +1,73 @@
+name: Deploy the App to demo env.
+
+# start action manually
+on: workflow_dispatch
+
+env:
+  PATH_TARGET: /home/live/inst/demo
+  PRJ: webauthn-pubkey
+  USER: live
+  ZIP: webauthn-pubkey.zip
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out repo to build env.
+        uses: actions/checkout@v3
+
+      - name: Build application and link @teqfw repos.
+        run: |
+          npm install
+
+      - name: Add application files to archive.
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq --exclude=*.git* -r ${{env.ZIP}} ./
+
+      - name: Validate archive existence and remote host params.
+        run: |
+          pwd
+          ls -lh ${{env.ZIP}}
+          echo "remote host: ${{ secrets.REMOTE_HOST_CONTABO }}"
+          echo "remote user: ${{env.USER}}"
+
+
+      - name: Validate SSH connection.
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST_CONTABO }}
+          username: ${{ env.USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_CONTABO }}
+          script: |
+            pwd
+            whoami
+
+
+      - name: Copy files to Remote Server.
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST_CONTABO }}
+          username: ${{ env.USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_CONTABO }}
+          source: ${{ env.ZIP }}
+          target: ${{env.PATH_TARGET}}/
+
+      - name: Extract files on Remote Server and switch site to the new instance.
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST_CONTABO }}
+          username: ${{ env.USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_CONTABO }}
+          script: |
+            cd "${{env.PATH_TARGET}}/"
+            rm -fr ${{env.PRJ}}.old/  
+            mkdir ${{env.PRJ}}.new
+            unzip ${{env.ZIP}} -d ./${{env.PRJ}}.new/ &> /dev/null
+            sudo /bin/systemctl stop pwa-${{env.PRJ}}.service
+            mv ./${{env.PRJ}} ./${{env.PRJ}}.old
+            mv ./${{env.PRJ}}.new ./${{env.PRJ}}
+            cp ./${{env.PRJ}}.old/cfg/local* ./${{env.PRJ}}/cfg/
+            sudo /bin/systemctl start pwa-${{env.PRJ}}.service
+            ls -lh ./${{env.PRJ}}/

@@ -11,7 +11,8 @@
   "@teqfw/core": {
     "commands": [],
     "plugin": {
-      "onInit": "Demo_Back_Plugin_Init"
+      "onInit": "Demo_Back_Plugin_Init",
+      "onStop": "Demo_Back_Plugin_Stop"
     }
   },
   "@teqfw/web-api": {

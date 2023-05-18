@@ -22,10 +22,14 @@
   },
   "dependencies": {
     "@flancer32/teq-ant-auth": "github:flancer32/teq-ant-auth",
-    "@teqfw/db": "latest",
-    "@teqfw/test": "latest",
-    "@teqfw/ui-quasar": "latest",
-    "@teqfw/web-api": "latest",
+    "@teqfw/core": "0.10.0",
+    "@teqfw/db": "0.7.0",
+    "@teqfw/di": "0.12.1",
+    "@teqfw/test": "0.3.0",
+    "@teqfw/ui-quasar": "0.4.0",
+    "@teqfw/vue": "0.4.0",
+    "@teqfw/web": "0.9.0",
+    "@teqfw/web-api": "0.2.0",
     "mysql2": "latest",
     "pg": "latest"
   },
