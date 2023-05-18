@@ -5,7 +5,6 @@
  */
 // MODULE'S VARS
 const NS = 'Demo_Front_Ui_Route_Sign_In';
-const TIMEOUT_REDIRECT = 1500;
 
 // MODULE'S FUNCTIONS
 
@@ -123,7 +122,7 @@ export default function (spec) {
                         const resV = await modPubKey.validate(assertion.response);
                         if (resV?.success) {
                             this.message = 'Authentication is succeed.';
-                            setTimeout(redirect, TIMEOUT_REDIRECT);
+                            setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                         } else {
                             this.message = 'Authentication is failed.';
                         }
@@ -139,7 +138,7 @@ export default function (spec) {
                     const res = await modPass.passwordValidate(email, pass);
                     if (res?.success) {
                         this.message = 'Authentication is succeed.';
-                        setTimeout(redirect, TIMEOUT_REDIRECT);
+                        setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                     } else {
                         this.message = 'Authentication is failed.';
                     }
@@ -158,6 +157,7 @@ export default function (spec) {
             }
         },
         mounted() {
+            document.title = 'PK Authn: Sign In';
             // use public key authentication if available
             modPubKey.isPublicKeyAvailable()
                 .then((available) => {

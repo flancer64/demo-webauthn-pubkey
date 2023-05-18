@@ -8,9 +8,16 @@
       "Fl32_Auth_Back_Api_Mole": {"back": "Demo_Back_Mole_Auth_User"}
     }
   },
+  "@teqfw/core": {
+    "commands": [],
+    "plugin": {
+      "onInit": "Demo_Back_Plugin_Init"
+    }
+  },
   "@teqfw/web-api": {
     "services": [
-      "Demo_Back_Web_Api_Sign_Up"
+      "Demo_Back_Web_Api_Sign_Up",
+      "Demo_Back_Web_Api_User_List"
     ]
   }
 }

@@ -10,9 +10,10 @@ export default class Demo_Front_Defaults {
     ROUTE_USER_SIGN_UP = '/user/sign/up';
 
     RP_NAME = 'WebAuthn Demo';
-
     /** @type {Demo_Shared_Defaults} */
     SHARED;
+
+    TIMEOUT_REDIRECT = 1000;
 
     constructor(spec) {
         this.SHARED = spec['Demo_Shared_Defaults$'];

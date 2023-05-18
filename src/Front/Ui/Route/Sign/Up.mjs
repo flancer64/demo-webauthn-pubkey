@@ -5,7 +5,6 @@
  */
 // MODULE'S VARS
 const NS = 'Demo_Front_Ui_Route_Sign_Up';
-const TIMEOUT_REDIRECT = 1500;
 
 // MODULE'S FUNCTIONS
 
@@ -138,7 +137,7 @@ export default function (spec) {
                             this.ifLoading = false;
                             if (resAttest?.attestationId) {
                                 this.message = 'This device is attested for this user.';
-                                setTimeout(redirect, TIMEOUT_REDIRECT);
+                                setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                             } else {
                                 this.message = 'This device is not attested for this user. Some error is occurred.';
                             }
@@ -147,7 +146,7 @@ export default function (spec) {
                         }
                     else {
                         // password authentication succeed, redirect to home
-                        setTimeout(redirect, TIMEOUT_REDIRECT);
+                        setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                     }
                 } else {
                     this.message = 'New user is not registered.';
@@ -155,6 +154,7 @@ export default function (spec) {
             }
         },
         mounted() {
+            document.title = 'PK Authn: Sign Up';
             // use public key authentication if available
             modPubKey.isPublicKeyAvailable()
                 .then((available) => {

@@ -16,25 +16,10 @@ export default class Demo_Back_Mole_Auth_User {
          * @inheritDoc
          *
          * @param {TeqFw_Db_Back_RDb_ITrans} [trx]
-         * @param {string} userRef
-         * @returns @returns {Promise<{userBid:number, user: Object}>}
-         */
-        this.load = async function ({trx, userRef: email}) {
-            const {
-                /** @type {Demo_Back_RDb_Schema_User.Dto} */
-                user
-            } = await actUserRead({trx, email});
-            return {userBid: user?.bid, user};
-        };
-
-        /**
-         * @inheritDoc
-         *
-         * @param {TeqFw_Db_Back_RDb_ITrans} [trx]
          * @param {number} userBid
-         * @returns {Promise<{sessionData: Object}>}
+         * @returns {Promise<{sessionData: Demo_Shared_Dto_Session.Dto}>}
          */
-        this.readSessionData = async function ({trx, userBid}) {
+        this.sessionDataRead = async function ({trx, userBid}) {
             const {
                 /** @type {Demo_Back_RDb_Schema_User.Dto} */
                 user
@@ -43,6 +28,21 @@ export default class Demo_Back_Mole_Auth_User {
             sessionData.email = user.email;
             sessionData.userId = user.bid;
             return {sessionData};
+        };
+
+        /**
+         * @inheritDoc
+         *
+         * @param {TeqFw_Db_Back_RDb_ITrans} [trx]
+         * @param {string} userRef
+         * @returns @returns {Promise<{userBid:number, user: Object}>}
+         */
+        this.userRead = async function ({trx, userRef: email}) {
+            const {
+                /** @type {Demo_Back_RDb_Schema_User.Dto} */
+                user
+            } = await actUserRead({trx, email});
+            return {userBid: user?.bid, user};
         };
     }
 }

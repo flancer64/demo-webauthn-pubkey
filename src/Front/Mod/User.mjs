@@ -11,6 +11,8 @@ export default class Demo_Front_Mod_User {
         const connApi = spec['TeqFw_Web_Api_Front_Web_Connect$'];
         /** @type {Demo_Shared_Web_Api_Sign_Up} */
         const apiSignUp = spec['Demo_Shared_Web_Api_Sign_Up$'];
+        /** @type {Demo_Shared_Web_Api_User_List} */
+        const apiList = spec['Demo_Shared_Web_Api_User_List$'];
         /** @type {Fl32_Auth_Front_Mod_PubKey} */
         const modPubKey = spec['Fl32_Auth_Front_Mod_PubKey$'];
         /** @type {Fl32_Auth_Front_Mod_Password} */
@@ -21,9 +23,20 @@ export default class Demo_Front_Mod_User {
         // MAIN
         logger.setNamespace(this.constructor.name);
 
-        // FUNCS
-
         // INSTANCE METHODS
+
+        /**
+         * Get list of the five users who have registered most recently.
+         * @return {Promise<Demo_Shared_Dto_User_Item.Dto[]>}
+         */
+        this.list = async function () {
+            const req = apiList.createReq();
+            // noinspection JSValidateTypes
+            /** @type {Demo_Shared_Web_Api_User_List.Response} */
+            const res = await connApi.send(req, apiList);
+            return res.items;
+        };
+
         /**
          * Register new user on backend and get data to attest new user on the current device.
          * @param {string} email

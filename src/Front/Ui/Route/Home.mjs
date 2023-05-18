@@ -18,14 +18,24 @@ export default function (spec) {
     const DEF = spec['Demo_Front_Defaults$'];
     /** @type {TeqFw_Core_Shared_Api_Logger} */
     const logger = spec['TeqFw_Core_Shared_Api_Logger$$']; // instance
+    /** @type {TeqFw_Core_Shared_Util_Format.date|function} */
+    const date = spec['TeqFw_Core_Shared_Util_Format.date'];
+    /** @type {Demo_Front_Mod_User} */
+    const modUser = spec['Demo_Front_Mod_User$'];
+    /** @type {Fl32_Auth_Front_Mod_Session} */
+    const modSess = spec['Fl32_Auth_Front_Mod_Session$'];
 
     // VARS
     logger.setNamespace(NS);
     const template = `
 <layout>
     <div class="column q-gutter-xs">
-        <h6 class="text-center">Demo App Homepage</h6>
         <div class="text-center">This is restricted area. For authenticated users only.</div>
+        <h6 class="text-center">Hi, {{userName}}</h6>
+        <div>The 5 users who have registered most recently:</div>
+        <ul>
+            <li v-for="one of items">{{formatDate(one.dateRegistered)}}: {{one.email}}</li>
+        </ul>
     </div>
 </layout>
 `;
@@ -41,10 +51,22 @@ export default function (spec) {
         teq: {package: DEF.SHARED.NAME},
         name: NS,
         template,
-        components: {},
         data() {
-            return {};
+            return {
+                items: [],
+                userName: null,
+            };
         },
-        methods: {},
+        methods: {
+            formatDate: (val) => date(val),
+        },
+        async mounted() {
+            document.title = 'PK Authn: Home';
+            // noinspection JSValidateTypes
+            /** @type {Demo_Shared_Dto_Session.Dto} */
+            const session = modSess.getData();
+            this.userName = session.email;
+            this.items = await modUser.list();
+        },
     };
 }

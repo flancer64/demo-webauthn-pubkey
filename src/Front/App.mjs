@@ -104,6 +104,15 @@ export default class Demo_Front_App {
                         };
                     }
                 });
+                // Matomo web stats
+                router.afterEach((to) => {
+                    const _paq = window?._paq;
+                    if (_paq) {
+                        _paq.push(['setCustomUrl', to.path]);
+                        _paq.push(['setDocumentTitle', document.title]);
+                        _paq.push(['trackPageView']);
+                    }
+                });
                 //
                 app.use(router);
                 return router;
