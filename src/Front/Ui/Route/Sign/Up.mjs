@@ -122,9 +122,12 @@ export default function (spec) {
                     if (this.fldUsePubKey)
                         if (res?.challenge) {
                             // attest current device and register publicKey on the back
+                            const userId = new Uint8Array(length);
+                            window.crypto.getRandomValues(userId);
                             const publicKey = modPubKey.composeOptPkCreate({
                                 challenge: res.challenge,
                                 rpName: DEF.RP_NAME,
+                                userId,
                                 userName: `${this.fldEmail}`,
                                 userUuid: res.uuid,
                             });
