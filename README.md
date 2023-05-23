@@ -13,11 +13,10 @@ This application is a demo for the "[PublicKeyCredential in Web Apps](https://fl
 
 ## Install
 
-```shell
+```
 $ git clone https://github.com/flancer64/demo-webauthn-pubkey.git
 $ cd ./demo-webauthn-pubkey
 $ npm install
-
 ```
 
 ## Setup
@@ -28,22 +27,21 @@ This app uses [Knex.js](https://knexjs.org/) to connect to PostgreSQL or MariaDB
 
 PostgreSQL:
 
-```shell
+```
 $ sudo -u postgres psql
 ...
-postgres=# create user webauthn_pubkey password '...'
-postgres=# create database webauthn_pubkey owner webauthn_pubkey
+postgres=# create user webauthn_pubkey password '...';
+postgres=# create database webauthn_pubkey owner webauthn_pubkey;
 postgres=# \q
-
 ```
 
 MariaDB/MySQL:
 
 ```shell
-root@vmi384293:/etc/apache2/sites-enabled# mariadb
+root@host:/# mariadb
 ...
 MariaDB [(none)]> CREATE DATABASE webauthn_pubkey;
-MariaDB [(none)]> CREATE USER webauthn_pubkey@localhost IDENTIFIED BY 'Parol4eg';
+MariaDB [(none)]> CREATE USER webauthn_pubkey@localhost IDENTIFIED BY '...';
 MariaDB [(none)]> GRANT ALL PRIVILEGES ON webauthn_pubkey.* TO webauthn_pubkey@localhost;
 MariaDB [(none)]> FLUSH PRIVILEGES;
 ```
@@ -53,7 +51,7 @@ MariaDB [(none)]> FLUSH PRIVILEGES;
 Create a local configuration file and set up the connection to the database and the port to be listened to by the web
 server:
 
-```shell
+```
 $ cd ./cfg/
 $ cp init.json local.json
 $ nano local.json
