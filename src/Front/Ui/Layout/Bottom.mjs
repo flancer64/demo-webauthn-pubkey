@@ -25,8 +25,12 @@ export default function (spec) {
     const template = `
 <div class="row q-gutter-md justify-center" style="padding-top: 20px">
     <div class="text-center">
-        <q-checkbox dense v-model="fldLog" label="Enable Log" />
-        <div v-if="fldLog">Logs will be aggregated <a :href="urlServer" target="_blank">here</a>.</div>
+        <q-checkbox dense v-model="fldLog" label="Enable Remote Log"/>
+        <div v-if="fldLog">
+            Logs will be aggregated <a :href="urlServer" target="_blank">here</a> and will be publicly
+            available. 
+        </div>
+        <div>You can clean aggregated logs at any time.</div>
     </div>
 </div>
 `;

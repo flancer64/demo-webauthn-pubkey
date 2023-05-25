@@ -108,39 +108,58 @@ export default function (spec) {
             async onOk() {
                 // FUNCS
                 const authPubKey = async () => {
-                    this.ifLoading = true;
-                    const resCh = await modPubKey.assertChallenge();
-                    if (resCh?.challenge) {
-                        const publicKey = modPubKey.composeOptPkGet({
-                            challenge: resCh.challenge,
-                            attestationId: resCh.attestationId
-                        });
-                        // noinspection JSValidateTypes
-                        /** @type {PublicKeyCredential} */
-                        const assertion = await navigator.credentials.get({publicKey});
-                        // noinspection JSCheckFunctionSignatures
-                        const resV = await modPubKey.validate(assertion.response);
-                        if (resV?.success) {
-                            this.message = 'Authentication is succeed.';
-                            setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
+                    if (modPubKey.isAttestationExist()) {
+                        logger.info(`PubKey authentication for is started.`);
+                        this.ifLoading = true;
+                        const resCh = await modPubKey.assertChallenge();
+                        if (resCh?.challenge) {
+                            logger.info(`Assertion challenge is received from the back.`);
+                            const publicKey = modPubKey.composeOptPkGet({
+                                challenge: resCh.challenge,
+                                attestationId: resCh.attestationId
+                            });
+                            try {
+                                // noinspection JSValidateTypes
+                                /** @type {PublicKeyCredential} */
+                                const assertion = await navigator.credentials.get({publicKey});
+                                logger.info(`Assertion for user is created.`);
+                                // noinspection JSCheckFunctionSignatures
+                                const resV = await modPubKey.validate(assertion.response);
+                                if (resV?.success) {
+                                    this.message = `Authentication is succeed.`;
+                                    logger.info(this.message);
+                                    setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
+                                } else {
+                                    this.message = `Authentication is failed.`;
+                                    logger.info(this.message);
+                                }
+                            } catch (e) {
+                                this.message = e.message;
+                                logger.error(e);
+                            }
                         } else {
-                            this.message = 'Authentication is failed.';
+                            this.message = `Cannot get authentication challenge from the back.`;
+                            logger.error(this.message);
                         }
+                        this.ifLoading = false;
                     } else {
-                        this.message = 'Cannot get authentication challenge from the back.';
+                        this.message = `Attestation ID is not found in the local storage.`;
+                        logger.error(this.message);
                     }
-                    this.ifLoading = false;
                 };
 
                 const authPassword = async () => {
+                    logger.info(`Password authentication for user '${this.fldEmail}' is started.`);
                     const email = this.fldEmail;
                     const pass = this.fldPassword;
                     const res = await modPass.passwordValidate(email, pass);
                     if (res?.success) {
-                        this.message = 'Authentication is succeed.';
+                        this.message = `Authentication is succeed for user '${this.fldEmail}'.\``;
+                        logger.info(this.message);
                         setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                     } else {
-                        this.message = 'Authentication is failed.';
+                        this.message = `Authentication is failed for user '${this.fldEmail}'.`;
+                        logger.info(this.message);
                     }
                 };
 
@@ -161,9 +180,10 @@ export default function (spec) {
             // use public key authentication if available
             modPubKey.isPublicKeyAvailable()
                 .then((available) => {
-                    logger.info(`Public key environment is available on sign in.`);
                     this.ifPubKeyAvailable = available;
                     this.fldUsePubKey = available;
+                    if (available)
+                        logger.info(`Public key environment is available on sign in.`);
                 });
         },
     };

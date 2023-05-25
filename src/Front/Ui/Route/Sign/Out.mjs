@@ -59,14 +59,17 @@ export default function (spec) {
             document.title = 'PK Authn: Sign Out';
             this.ifLoading = true;
             this.message = 'Closing the current session.';
+            logger.info(this.message);
             const res = await modSess.close();
             if (res.success) {
                 this.message = 'The session is closed.';
+                logger.info(this.message);
                 setTimeout(() => {
                     this.$router.push(DEF.ROUTE_USER_SIGN_IN);
                 }, DEF.TIMEOUT_REDIRECT);
             } else {
-                this.message = 'Some error is occurred.';
+                this.message = 'Some error is occurred on session closing.';
+                logger.error(this.message);
             }
             this.ifLoading = false;
         },
