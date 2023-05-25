@@ -30,7 +30,7 @@ export default function (spec) {
             Logs will be aggregated <a :href="urlServer" target="_blank">here</a> and will be publicly
             available. 
         </div>
-        <div>You can clean aggregated logs at any time.</div>
+        <div v-if="fldLog">You can clean aggregated logs at any time.</div>
     </div>
 </div>
 `;
