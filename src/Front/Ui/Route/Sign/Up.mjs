@@ -113,54 +113,60 @@ export default function (spec) {
                 };
 
                 // MAIN
-                this.ifLoading = true;
-                // request the back for attestation challenge
-                logger.info(`Registering new user '${this.fldEmail}' on backend.`);
-                const res = await modUser.register(this.fldEmail, this.fldPassword);
-                this.ifLoading = false;
-                if (res?.uuid) {
-                    this.message = `New user '${res.name}' is registered.`;
-                    logger.info(this.message);
-                    if (this.fldUsePubKey)
-                        if (res?.challenge) {
-                            logger.info(`Attestation challenge for user '${this.fldEmail}' is received from the back.`);
-                            // attest current device and register publicKey on the back
-                            const userId = new Uint8Array(length);
-                            window.crypto.getRandomValues(userId);
-                            const publicKey = modPubKey.composeOptPkCreate({
-                                challenge: res.challenge,
-                                rpName: DEF.RP_NAME,
-                                userId,
-                                userName: `${this.fldEmail}`,
-                                userUuid: res.uuid,
-                            });
-                            // noinspection JSValidateTypes
-                            /** @type {PublicKeyCredential} */
-                            const attestation = await navigator.credentials.create({publicKey});
-                            logger.info(`Attestation for user '${this.fldEmail}' is created.`);
-                            this.ifLoading = true;
-                            /** @type {Fl32_Auth_Shared_Web_Api_Attest.Response} */
-                            const resAttest = await modPubKey.attest({attestation});
-                            this.ifLoading = false;
-                            if (resAttest?.attestationId) {
-                                this.message = 'This device is attested for this user.';
-                                logger.info(this.message);
-                                setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
+                try {
+                    this.ifLoading = true;
+                    // request the back for attestation challenge
+                    logger.info(`Registering new user '${this.fldEmail}' on backend.`);
+                    const res = await modUser.register(this.fldEmail, this.fldPassword);
+                    this.ifLoading = false;
+                    if (res?.uuid) {
+                        this.message = `New user '${res.name}' is registered.`;
+                        logger.info(this.message);
+                        if (this.fldUsePubKey)
+                            if (res?.challenge) {
+                                // attest current device and register publicKey on the back
+                                logger.info(`Attestation challenge for user '${this.fldEmail}' is received from the back.`);
+                                // generate random userId
+                                const userId = new Uint8Array(64);
+                                window.crypto.getRandomValues(userId);
+                                const publicKey = modPubKey.composeOptPkCreate({
+                                    challenge: res.challenge,
+                                    rpName: DEF.RP_NAME,
+                                    userId,
+                                    userName: `${this.fldEmail}`,
+                                    userUuid: res.uuid,
+                                });
+                                // noinspection JSValidateTypes
+                                /** @type {PublicKeyCredential} */
+                                const attestation = await navigator.credentials.create({publicKey});
+                                logger.info(`Attestation for user '${this.fldEmail}' is created.`);
+                                this.ifLoading = true;
+                                /** @type {Fl32_Auth_Shared_Web_Api_Attest.Response} */
+                                const resAttest = await modPubKey.attest({attestation});
+                                this.ifLoading = false;
+                                if (resAttest?.attestationId) {
+                                    this.message = 'This device is attested for this user.';
+                                    logger.info(this.message);
+                                    setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
+                                } else {
+                                    this.message = 'This device is not attested for this user. Some error is occurred.';
+                                    logger.error(this.message);
+                                }
                             } else {
-                                this.message = 'This device is not attested for this user. Some error is occurred.';
+                                this.message = 'Cannot receive attestation challenge from the back.';
                                 logger.error(this.message);
                             }
-                        } else {
-                            this.message = 'Cannot receive attestation challenge from the back.';
-                            logger.error(this.message);
+                        else {
+                            logger.info(`Password authentication for user '${this.fldEmail}' is succeed, redirect to home`);
+                            setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
                         }
-                    else {
-                        logger.info(`Password authentication for user '${this.fldEmail}' is succeed, redirect to home`);
-                        setTimeout(redirect, DEF.TIMEOUT_REDIRECT);
+                    } else {
+                        this.message = 'New user is not registered.';
+                        logger.error(this.message);
                     }
-                } else {
-                    this.message = 'New user is not registered.';
-                    logger.error(this.message);
+                } catch (e) {
+                    logger.error(e);
+                    this.message = 'Some error is occurred: ' + e?.message;
                 }
             }
         },
