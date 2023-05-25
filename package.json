@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@flancer32/teq-ant-auth": "github:flancer32/teq-ant-auth",
+    "@flancer32/teq-ant-log": "github:flancer32/teq-ant-log",
     "@teqfw/core": "0.10.0",
     "@teqfw/db": "0.7.0",
     "@teqfw/di": "0.12.1",

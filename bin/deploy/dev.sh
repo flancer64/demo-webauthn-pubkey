@@ -36,6 +36,7 @@ mkdir -p "${DIR_OWN}/@flancer32/"
 mkdir -p "${DIR_OWN}/@teqfw/"
 
 processRepo "flancer32/teq-ant-auth"
+processRepo "flancer32/teq-ant-log"
 processRepo "teqfw/core"
 processRepo "teqfw/db"
 processRepo "teqfw/di"

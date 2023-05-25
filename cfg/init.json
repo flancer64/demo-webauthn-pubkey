@@ -9,6 +9,9 @@
     }
   },
   "@teqfw/web": {
+    "custom": {
+      "logsAggregator": "domain.com"
+    },
     "server": {
       "port": 8080
     }

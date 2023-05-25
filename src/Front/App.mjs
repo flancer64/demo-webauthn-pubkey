@@ -25,18 +25,21 @@ export default class Demo_Front_App {
         const container = spec['TeqFw_Di_Shared_Container$'];
         /** @type {TeqFw_Core_Shared_Api_Logger} */
         const logger = spec['TeqFw_Core_Shared_Api_Logger$$']; // instance
+        /** @type {TeqFw_Core_Shared_Logger_Base} */
+        const loggerBase = spec['TeqFw_Core_Shared_Logger_Base$'];
         /** @type {TeqFw_Ui_Quasar_Front_Lib} */
         const quasar = spec['TeqFw_Ui_Quasar_Front_Lib'];
         /** @type {TeqFw_Web_Front_Mod_Config} */
         const modCfg = spec['TeqFw_Web_Front_Mod_Config$'];
         /** @type {Fl32_Auth_Front_Mod_Session} */
         const modSess = spec['Fl32_Auth_Front_Mod_Session$'];
+        /** @type {Fl32_Log_Front_Logger_Transport} */
+        const modLogTrn = spec['TeqFw_Core_Shared_Api_Logger_Transport$']; // as interface
         /** @type {Demo_Front_Ui_Layout_Main.vueCompTmpl} */
         const Main = spec['Demo_Front_Ui_Layout_Main$'];
-        /** @type {Demo_Front_Ui_Layout_Navigator.vueCompTmpl} */
-        const Navigator = spec['Demo_Front_Ui_Layout_Navigator$'];
 
         // VARS
+        logger.setNamespace(this.constructor.name);
         let _isInitialized = false; // application is initialized and can be mounted
         let _print; // function to printout logs to UI or console
         let _root; // root vue component for the application
@@ -56,6 +59,17 @@ export default class Demo_Front_App {
              */
             function createPrintout(fn) {
                 return (typeof fn === 'function') ? fn : (msg) => console.log(msg);
+            }
+
+            function initLogger() {
+                // get previous value from localStorage
+                if (modLogTrn.isLogsMonitorOn()) {
+                    /** @type {TeqFw_Web_Shared_Dto_Config_Front.Dto} */
+                    const cfg = modCfg.get();
+                    const domain = cfg?.custom[DEF.SHARED.CFG_WEB_LOGS_AGG];
+                    modLogTrn.enableLogs(domain);
+                    loggerBase.setTransport(modLogTrn);
+                }
             }
 
             function initQuasarUi(app, quasar) {
@@ -139,11 +153,13 @@ export default class Demo_Front_App {
             });
             // ... and add global available components
             _root.component('Layout', Main);
-            _root.component('Navigator', Navigator);
-            // other initialization
-            await modCfg.init({}); // this app has no separate 'doors' (entry points)
-            _print(`Application config is loaded.`);
+
             try {
+                // other initialization
+                await modCfg.init({}); // this app has no separate 'doors' (entry points)
+                _print(`Application config is loaded.`);
+                initLogger();
+                _print(`Logger transport is initialized.`);
                 await modSess.init();
                 _print(`User session is initialized.`);
                 initQuasarUi(_root, quasar);

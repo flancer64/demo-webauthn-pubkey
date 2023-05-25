@@ -161,6 +161,7 @@ export default function (spec) {
             // use public key authentication if available
             modPubKey.isPublicKeyAvailable()
                 .then((available) => {
+                    logger.info(`Public key environment is available on sign in.`);
                     this.ifPubKeyAvailable = available;
                     this.fldUsePubKey = available;
                 });

@@ -16,12 +16,17 @@ const NS = 'Demo_Front_Ui_Layout_Main';
 export default function (spec) {
     /** @type {Demo_Front_Defaults} */
     const DEF = spec['Demo_Front_Defaults$'];
+    /** @type {Demo_Front_Ui_Layout_Bottom.vueCompTmpl} */
+    const uiBottom = spec['Demo_Front_Ui_Layout_Bottom$'];
+    /** @type {Demo_Front_Ui_Layout_Navigator.vueCompTmpl} */
+    const uiNavigator = spec['Demo_Front_Ui_Layout_Navigator$'];
 
     // VARS
     const template = `
 <div class="column q-gutter-xs">
-    <navigator/>
+    <ui-navigator/>
     <slot/>
+    <ui-bottom/>
 </div>
 `;
 
@@ -36,5 +41,6 @@ export default function (spec) {
         teq: {package: DEF.SHARED.NAME},
         name: NS,
         template,
+        components: {uiBottom, uiNavigator},
     };
 }
