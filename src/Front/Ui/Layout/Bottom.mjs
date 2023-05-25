@@ -65,7 +65,7 @@ export default function (spec) {
             /** @type {TeqFw_Web_Shared_Dto_Config_Front.Dto} */
             const cfg = modCfg.get();
             const domain = cfg?.custom[DEF.SHARED.CFG_WEB_LOGS_AGG];
-            this.urlServer = (domain.includes('://')) ? domain : `//${{domain}}`;
+            this.urlServer = (domain.includes('://')) ? domain : `//${domain}`;
             this.fldLog = logTransport.isLogsMonitorOn();
         },
     };
